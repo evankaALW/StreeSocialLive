@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
 import '../styles/videoUploadForm.css';
-import config from '../config';  // Adjust the path accordingly
-// import { Demo } from "./demo";
+import config from '../config';
 
 const apiUrl = `${config.apiBaseUrl}`;
 
 function UploadForm() {
   const [isQuestionExisting, setQuestionExisting] = useState(false);
+  const [questionDetails, setQuestionDetails] = useState([]);
+  const [brandDetails,setBrandDetails] = useState([]);
+  const [movieDetails,setMovieDetails] = useState([]);
+  const [numOptions, setNumOptions] = useState(2);
+  const [option, setOption] = useState(numOptions);
+  //form data 
   const [formData, setFormData] = useState({
-
     adVideoLink: '',
+    advertisementName:'',
     adVideoLinkSize:'',
     movieURLPartOne: '',
     movieURLPartTwo: '',
@@ -65,16 +70,7 @@ function UploadForm() {
     movieName:'',
     sampleID:'',
   });
-
-//fields to upload in the file server
-  const [selectedFiles, setSelectedFiles] = useState({
-    adVideoLink: null,
-    imageURL: null,
-    movieURLPartOne: null,
-    movieURLPartTwo: null,
-  });
-
-
+  //Handle Value if the Advertisement is for a Sample or not
   const handleIsSampleChange = (e) => {
     const isSampleValue = e.target.value;
     setFormData(prevState => ({
@@ -82,77 +78,54 @@ function UploadForm() {
       isSample: isSampleValue,
     }));
   };
-
+  //Save the Sample Details if the Ad is a Sample Ad
   const handleSampleDetailsChange = (e) => {
     const sampleDetails = e.target.value;
     setFormData({
       ...formData,
       sampleID: sampleDetails,
     })};
- 
-  //  const handleQuestionChange = (e) => {
-  //   const newValue = e.target.checked;
-  //   if(e.target.value == "existingQuestion"){
-  //     setQuestionExisting(!newValue);
-  //   }
-  //   else if(e.target.value == "newQuestion"){
-  //     setQuestionExisting(newValue);
-  //   }
-  //   console.log(isQuestionExisting, e.target.value)
-  //   //setQuestionExisting(!isQuestionExisting);
-  //    setFormData({
-  //          ...formData,
-  //          isQuestionExists: newValue,
-  //        });
-
-  //       console.log(isQuestionExisting, formData);
-
-  // };
-
+  //Sets the checkbox if the Question for the Ad is a New question or an existing question
   const handleQuestionChange = (e) => {
     const newValue = e.target.checked;
     setQuestionExisting(newValue);
-
-    // Update formData.isQuestionExists immediately based on the checkbox status
-    setFormData(prevState => ({
+    setFormData(prevState => ({// Update formData.isQuestionExists immediately based on the checkbox status
       ...prevState,
       isQuestionExists: newValue,
     }));
   };
 
-  useEffect(() => {
-    // Perform actions based on changes in formData.isQuestionExists
+  useEffect(() => { // console.log of the checkbox output once the isQuestionExists value changes
     console.log("formData.isQuestionExists changed:", formData.isQuestionExists, formData);
-    // Example action: update some state or perform an API call based on formData.isQuestionExists
   }, [formData.isQuestionExists]);
 
-  const [questionDetails, setQuestionDetails] = useState([]);
-
-
-    useEffect(() => {
-      fetch(`${apiUrl}/getQuestionDetails`)
-        .then(response => response.json())
-        .then(results => {
-          setQuestionDetails(results.questionData);
-        })
-        .catch(error => {
-          console.error('Error fetching videos:', error);
-        });
-      },[]);
-
-  const [brandDetails,setBrandDetails] = useState([]);
+  //If user chooses to enter existing question, it fetches the list of existing questions from the questionTable in Live db
   useEffect(() => {
-    fetch(`${apiUrl}/getBrandDetails`)
+    fetch(`${apiUrl}/getQuestionDetails`)
       .then(response => response.json())
       .then(results => {
+          setQuestionDetails(results.questionData);
+      })
+      .catch(error => {
+          console.error('Error fetching videos:', error);
+      });
+    },[]);
+ 
+  useEffect(() => {//Fetches brand details from the brandTable in Live db
+    const headers = { 'key-alw-api-key': '7dn93jKEYgdrsnskALWdyeg2mkhddts' };
+    fetch(`${apiUrl}/getBrandDetails`, { headers })
+      .then(response => response.json())
+      .then(results => {
+        console.log("brand results:",results.brandDetails)
         setBrandDetails(results.brandDetails);
+        console.log("brand resultsafter setting",brandDetails)
       })
       .catch(error => {
         console.error('Error fetching brand details:', error);
       });
     },[]);
 
-    const [movieDetails,setMovieDetails] = useState([]);
+    //fetches movie details from the movieTable in Live DB
     useEffect(() => {
       fetch(`${apiUrl}/getMovieDetails`)
         .then(response => response.json())
@@ -164,10 +137,7 @@ function UploadForm() {
         });
       },[]);
 
-  const [numOptions, setNumOptions] = useState(2);
-  const [option, setOption] = useState(numOptions);
-
-
+ 
   const handleNumOptionsChange = (e) => {
     const selectedNumOptions = parseInt(e.target.value, 10);
     setNumOptions(selectedNumOptions);
@@ -253,35 +223,38 @@ function UploadForm() {
   };
 
   const handleVideoChange = async (e) => {
-    console.log("file path chatgpt",e.target.files[0]);
+    const file = e.target.files[0];
+    console.log("file path chatgpt", file);
     const myArray = e.target.value.split("\\");
-    setFormData({ ...formData, 'adVideoLink': myArray[2] });//, 'adVideoLinkSize': fileSize});
-    console.log("myArray[2]",myArray[2],e.target.files[0])
+    const fileName = myArray[myArray.length - 1];
 
-    if(!myArray[2] || myArray[2] === 'undefined' || myArray[2].length === 0)
-      {
-        alert('Please upload Video Link again');
-      }
-      else{
+    if (!fileName || fileName === 'undefined' || fileName.length === 0) {
+      alert('Please upload Video Link again');
+    } else {
+      setFormData({ ...formData, adVideoLink: fileName, adVideoLinkSize: file.size });
 
-        setFormData({ ...formData, 'adVideoLink': myArray[2],'adVideoLinkSize': e.target.files[0].size});
-        // try {
-        //   const fileSize = await calculateFileSize(myArray[2]);
-        //   console.log("file size",fileSize, e.target.files[0])
-        //   if (fileSize !== null) {
-        //     handleVideoSizeChange(fileSize,myArray[2]);
-        //    } else {
-        //      alert('Unable to calculate file size. Please check your file URL.');
-        //    }
-        // } catch (error) {
-        //   console.error('Error calculating file size:', error);
-        //   alert('Error calculating file size. Please check your file URL.');
-        // }
+      if (file && (file.type === 'video/mp4' || file.type === 'video/quicktime')) {
+        const fileURL = URL.createObjectURL(file);
+
+        const videoElement = document.createElement('video');
+        videoElement.src = fileURL;
+
+        videoElement.addEventListener('loadedmetadata', () => {
+          const roundedDuration = Math.round(videoElement.duration);
+          setFormData(prevData => ({
+            ...prevData,
+            duration: roundedDuration,
+          }));
+          URL.revokeObjectURL(fileURL);  // Clean up the object URL after usage
+        });
+      } else {
+        alert('Please upload a valid MP4 or MOV video file.');
       }
-    
-    console.log(myArray[2]);
+    }
+    console.log(fileName);
     console.log("handleVideoChange", formData);
   };
+
 
 
   const handleVideoSizeChange = (fileSize,fileName) => {
@@ -289,13 +262,14 @@ function UploadForm() {
   }
 
   const handlePartOneURLChange = async (e) => {
+    const file = e.target.files[0];
     const myArray = ( e.target.value).split("\\");
     setFormData({ ...formData, 'movieURLPartOne' :  myArray[2]});
     try {
-      const fileSize = await calculateFileSize(myArray[2]);
+      const fileSize = file.size;
       console.log("file size",fileSize, myArray[2])
-      if (fileSize !== null) {
-        setFormData({ ...formData, 'movieURLPartOne' :  myArray[2], 'movieURLPartOneSize': fileSize});
+      if (file.size !== null) {
+        setFormData({ ...formData, 'movieURLPartOne' :  myArray[2], 'movieURLPartOneSize': file.size});
        } else {
          alert('Unable to calculate file size. Please check your file URL.');
        }
@@ -308,13 +282,14 @@ function UploadForm() {
   }
 
   const handlePartTwoURLChange = async (e) => {
+    const file = e.target.files[0];
     const myArray = ( e.target.value).split("\\");
     setFormData({ ...formData, 'movieURLPartTwo' :  myArray[2]});
     try {
-      const fileSize = await calculateFileSize(myArray[2]);
+      const fileSize = file.size;;
       console.log("file size",fileSize, e.target.value)
-      if (fileSize !== null) {
-        setFormData({ ...formData, 'movieURLPartTwo' :  myArray[2], 'movieURLPartTwoSize': fileSize});
+      if (file.size !== null) {
+        setFormData({ ...formData, 'movieURLPartTwo' :  myArray[2], 'movieURLPartTwoSize': file.size});
        } else {
          alert('Unable to calculate file size. Please check your file URL.');
        }
@@ -337,25 +312,6 @@ function UploadForm() {
     e.preventDefault(); 
    
     console.log("final form data:",formData);
-//UPLOAD THE VIDEO/IMAGE FILES IN AN AWS S3 BUCKET/FILE SERVER. CODE NOT USED FOR NOW
-    const uploadData = new FormData();
-    for (const key in selectedFiles) {
-      if (selectedFiles[key]) {
-        uploadData.append(key, selectedFiles[key]);
-      }
-    }
-
-    try {
-      const uploadResponse = await axios.post(`${apiUrl}/upload`, uploadData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-    }catch (error) {
-      console.error('Error:', error);
-    }
-
-      const uploadedFiles = uploadResponse.data.files;
 
     try {
       const response = await fetch(`${apiUrl}/addContentData`, {
@@ -372,6 +328,7 @@ function UploadForm() {
         setFormData({
           
           adVideoLink: '',
+          advertisementName:'',
           adVideoLinkSize:'',
           movieURLPartOne: '',
           movieURLPartTwo: '',
@@ -579,6 +536,11 @@ function UploadForm() {
           <span className="file-name"><h4>{formData.adVideoLink}</h4></span>
         </label>
 
+        <label style={{ display: formData.videoType === "Advertisement"? 'block' : 'none'}}>
+        Enter Advertisement Name:
+          <input type="text" name="advertisementName" value={formData.advertisementName} onChange={handleChange} />
+      </label>
+
     {/* <label style={{ display: formData.videoType =="Advertisement" ? 'block' : 'none' }}>      <span>Ad Video Size (MB):</span>
       <input type="text" name="adVideoLinkSize" value={formData.adVideoLinkSize} onChange={handleChange} readOnly/>
     </label> */}
@@ -599,7 +561,7 @@ function UploadForm() {
       <span className="file-name"><h4>{formData.movieURLPartTwo}</h4></span>
     </label>
 
-    <label style={{ display: formData.videoType =="Content" ? 'block' : 'none' }}> 
+    {/* <label style={{ display: formData.videoType =="Content" ? 'block' : 'none' }}> 
       <div className="custom-file-input">
         <input type="text" name="movieURLPartOneSize" value={formData.movieURLPartOneSize} onChange={handleChange} readOnly/>
         Calculated Movie Part One File Size (Bytes):
@@ -611,7 +573,7 @@ function UploadForm() {
       <input type="text" name="movieURLPartTwoSize" value={formData.movieURLPartTwoSize} onChange={handleChange} readOnly/>
       Calculated Movie Part Two File Size (Bytes):
       </div>
-    </label>
+    </label> */}
      
     <label style={{ display: formData.videoType =="Advertisement" ? 'block' : 'none' }}>      <span>Image URL:</span>
       <div className="custom-file-input">
@@ -709,12 +671,10 @@ function UploadForm() {
         Enter New Question Here:
           <input type="text" name="questionDescription" value={formData.questionDescription} onChange={handleChange} />
       </label>
-
-     
-      <label>
+      {/* <label>
       Duration ( in seconds ):
         <input type="text" name="duration" value={formData.duration} onChange={handleChange} />
-      </label>
+      </label> */}
     
 
  <label style={{ display: formData.videoType === "Advertisement" ? 'block' : 'none' }}>

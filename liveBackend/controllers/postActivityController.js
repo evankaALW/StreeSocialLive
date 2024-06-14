@@ -21,7 +21,7 @@ const postActivityDetails = {
         const results = await connection.query(query);
 
             if(results){
-                res.status(200).json({ message:"200 OK postClickerData successful"});
+                res.status(200).json({ message:"200 OK INSERT INTO activityCashbackTable successful"});
             }
         }
     }

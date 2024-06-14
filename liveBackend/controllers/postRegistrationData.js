@@ -1,60 +1,91 @@
-const connection = require('../config/db'); // Assuming you have a database configuration file
-const SECRET_KEY = "loginSuccessfulStreeS";//add in .env file
+const connection = require('../config/db');
+const config = require('../config/config'); // Assuming you have a database configuration file
+const axios = require('axios');
+const multer = require('multer');
+const fs = require('fs');
+require('dotenv').config();
 
-const postRegistrationData ={
-    postRegistration: async (req, res,next) => {
-    var brandID, theatreID;
-    const { userName, dateOfBirth, phoneNumber, emailID, photo, cardID, address, pinCode, languageSpoken, loginPIN, brand, theatre, pinCodesForAllocation
-  } = req.body;
+const upload = multer({ dest: 'uploads/' });
+const apiUrl = config.apiUrl || 'http://192.168.0.113:8012'; // Assuming you have this configured
 
-  try {
-    const queryOne = `SELECT id from brandTable WHERE brandName = '${brand}'`;
-    const [brandIDJSON] = await connection.query(queryOne);
-    brandID = brandIDJSON[0].id;
-    console.log(brandID)
-    if(brandID){
+const postRegistrationData = {
+  postRegistration: [
+    upload.single('photo'), // Middleware to handle single file upload
+    async (req, res, next) => {
+      const {
+        userName,
+        dateOfBirth,
+        phoneNumber,
+        emailID,
+        cardID,
+        address,
+        pinCode,
+        languageSpoken,
+        loginPIN,
+        brand,
+        city,
+        theatre,
+        pinCodesForAllocation
+      } = req.body;
 
-        // const theatrePinQuery = `SELECT id, pinCodesForAllocation FROM theatreTable`;
-        // const theatrePinResult = await connection.query(theatrePinQuery);
-        // if(theatrePinResult[0])
-        //   {
-        //       for (let i = 0; i < theatrePinResult[0].length; i++) {
-        //         const row = theatrePinResult[0][i];
-        //         if(row.pinCodesForAllocation){
-        //           // Parsing the string value of pinCodesForAllocation into JSON
-        //         const pinCodes = JSON.parse(row.pinCodesForAllocation);
-        //         if (pinCodes.includes(pinCode)) {// If yes, store the associated id in the theatreID variable and break the loop
-        //           theatreID = row.id;
-        //           console.log("theatre id found", theatreID)
-        //           break;
-        //         }
-        //         }
-        //       }
-        //   }
-        console.log("brandID : ",brandID)
-        console.log("req", req.body)
-        const queryTwo = `INSERT INTO userTable ( id, userName, dateOfBirth, phoneNumber, emailID, photo, cardID, address, pinCode, languageSpoken, loginPIN, brandID, theatreID, dateTime, isDeleted, createdAt, updatedAt )
-    VALUES ( null, '${userName}', '${dateOfBirth}', ${phoneNumber}, '${emailID}', '${photo}', ${cardID}, '${address}', ${pinCode}, '${languageSpoken}', ${loginPIN}, ${brandID}, 1, CONVERT_TZ(NOW(), '+00:00', '+05:30'), false, CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
+      const photo = req.file; // Access the uploaded file
+      let brandID;
 
-    const [result, metadata ]= await connection.query(queryTwo);
-    const userId = result;
-    console.log(result,"result")
-    if(userId){
-      const queryThree = `insert into walletTable (id, userID, value, dateAdded, updatedDateTime, createdAt, updatedAt) VALUES ( NULL, ${userId}, 0, CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
+      try {
+        const queryOne = `SELECT id FROM brandTable WHERE brandName = '${brand}'`;
+        const [brandIDJSON] = await connection.query(queryOne);
+        brandID = brandIDJSON[0].id;
 
-      const resultThree = await connection.query(queryThree);
-      if(resultThree)
-      {
-          res.status(200).json({ message:"Registration successful"});
+        const queryTwo = `SELECT * FROM userTable WHERE userName = '${userName}' OR emailID = '${emailID}' OR phoneNumber = ${phoneNumber};`;
+        const [resultTwo] = await connection.query(queryTwo);
+
+        if (resultTwo[0]) {
+          return res.status(409).json({ error: "Cannot enter duplicate entry of User name, Phone Number or Email ID" });
+        } else {
+          let photoUrl = '';
+          if (photo) {
+            // Upload the image using axios
+            try {
+              const response = await axios.post(`${apiUrl}/uploads`, fs.createReadStream(photo.path), {
+                headers: {
+                  'Content-Type': 'multipart/form-data'
+                }
+              });
+
+              photoUrl = response.data.url; // Get the URL of the uploaded image
+            } catch (error) {
+              console.error('Error uploading image to server:', error);
+              return res.status(500).json({ error: 'Internal server error while uploading image.' });
+            } finally {
+              // Clean up the uploaded file from the local storage
+              fs.unlinkSync(photo.path);
+            }
+          }
+
+          if (brandID) {
+            const queryThree = `INSERT INTO userTable (id, userName, dateOfBirth, phoneNumber, emailID, photo, cardID, address, city, pinCode, languageSpoken, loginPIN, brandID, theatreID, dateTime, isDeleted, createdAt, updatedAt)
+              VALUES (null, '${userName}', '${dateOfBirth}', ${phoneNumber}, '${emailID}', '${photoUrl}', ${cardID}, '${address}', '${city}', ${pinCode}, '${languageSpoken}', '${loginPIN}', ${brandID}, 1, CONVERT_TZ(NOW(), '+00:00', '+05:30'), false, CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
+
+            const [result] = await connection.query(queryThree);
+            const userId = result;
+
+            if (userId) {
+              const queryFour = `INSERT INTO walletTable (id, userID, value, dateAdded, updatedDateTime, createdAt, updatedAt)
+                VALUES (NULL, ${userId}, 0, CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
+
+              const resultFour = await connection.query(queryFour);
+              if (resultFour) {
+                return res.status(200).json({ message: "Registration successful" });
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        next(error);
       }
-     }
     }
-    else{
-      console.log('brandId not found')
-    }
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }}};
+  ]
+};
 
-  module.exports = postRegistrationData;
+module.exports = postRegistrationData;

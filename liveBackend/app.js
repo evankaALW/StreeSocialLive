@@ -21,6 +21,7 @@ const theatreDetailsRouter = require('./routes/theatreDataRouter');
 const screenDetailsRouter = require('./routes/screenDataRouter');
 const putLoginDataRouter = require('./routes/putLoginDataRouter');
 const postActivityRouter = require('./routes/postActivityRouter');
+const postOTPRouter = require('./routes/postOTPRegistrationRouter');
 
 const userTable = require('./models/userTable');
 const advertisementTable = require('./models/advertisementTable')
@@ -68,6 +69,7 @@ app.use('',allContentDataRouter);
 app.use('',theatreDetailsRouter);
 app.use('',screenDetailsRouter);
 app.use('',postActivityRouter);
+app.use('',postOTPRouter);
 
 const PORT = process.env.PORT || 8012;
 

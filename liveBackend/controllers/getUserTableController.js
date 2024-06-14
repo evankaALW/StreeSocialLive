@@ -3,6 +3,7 @@ const connection = require('../config/db');
 const userTableController = {
     getUserTable: async (req, res,next) => {
         try {
+           
             const { id } = req.params;
             if (id) {                // Execute another query if id exists
                     const query = `SELECT * FROM userTable WHERE id = ${id}`;

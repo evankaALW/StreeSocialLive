@@ -8,12 +8,15 @@ const postMovieData = {
             intervalTime, productionHouse, dateTime, startDate, endDate, posterImage,  isDeleted, 
             isExpired } = req.body;
 
+            const partOne = `${movieName} Part 1`;
+            const partTwo = `${movieName} Part 2`;
+
             console.log(req.body);
         //, , , movieURLPartOne, movieURLPartOneSize, movieURLPartTwo, movieURLPartTwoSize, movieRuntime, intervalTime, productionHouse, dateTime, startDate, endDate, posterImage, displayToggle, userResponseToggle, isDeleted, isExpired, createdAt, updatedAt
-        const query =  `INSERT INTO movieTable (movieName, movieDesc, movieURLPartOne, movieURLPartOneSize, movieURLPartTwo, movieURLPartTwoSize, movieRuntime, 
+        const query =  `INSERT INTO movieTable (movieName, movieNamePartOne, movieNamePartTwo, movieDesc, movieURLPartOne, movieURLPartOneSize, movieURLPartTwo, movieURLPartTwoSize, movieRuntime, 
             intervalTime, productionHouse, dateTime, startDate, endDate, posterImage, displayToggle, userResponseToggle, isDeleted, 
             isExpired, createdAt, updatedAt) 
-        VALUES ('${movieName}', '${movieDesc}','',0, '', 0,  ${movieRuntime}, ${intervalTime}, '${productionHouse}' ,CONVERT_TZ(NOW(), '+00:00', '+05:30'), '${startDate} 00:00:00', '${endDate} 00:00:00', '', 
+        VALUES ('${movieName}', '${partOne}', '${partTwo}', '${movieDesc}','',0, '', 0,  ${movieRuntime}, ${intervalTime}, '${productionHouse}' ,CONVERT_TZ(NOW(), '+00:00', '+05:30'), '${startDate} 00:00:00', '${endDate} 00:00:00', '', 
         0, 1, false, false, CONVERT_TZ(NOW(), '+00:00', '+05:30'), CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
 
         const results = await connection.query(query);

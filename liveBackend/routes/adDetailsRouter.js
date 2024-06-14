@@ -3,6 +3,8 @@ const errorHandler = require('../middleware/errorHandlingMiddleware');
 const getAdvertisementDetails = require('../controllers/getAdDetailsController');
 const updateAdvertisement = require('../controllers/putAdDetailsController');
 const deleteAdvertisementDetails = require('../controllers/deleteAdDetailsController');
+const authenticate = require('../middleware/authenticate');
+const authorize = require('../middleware/authorize');
 
 const adDetailsRouter = express.Router();
 

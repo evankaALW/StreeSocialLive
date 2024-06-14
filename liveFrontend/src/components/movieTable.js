@@ -74,10 +74,10 @@ export const MovieTable = () => {
       return (
         <tr key={movie.movieID}>
           <td>{movie.movieID}</td>
-          <td><p>{editedMovie.movieName}</p></td> {/* onChange={e => handleInputChange(e, 'movieName')} /></td> */}
-          <td><p>{editedMovie.movieDesc}</p></td> {/* onChange={e => handleInputChange(e, 'movieDesc')} /></td> */}
-          <td><p>{editedMovie.movieRuntime}</p></td> {/*onChange={e => handleInputChange(e, 'movieRuntime')} /></td>*/}
-          <td><p>{editedMovie.productionHouse}</p></td> {/*onChange={e => handleInputChange(e, 'productionHouse')} /></td>*/}
+          <td><p>{editedMovie.movieName}</p></td>
+          <td><p>{editedMovie.movieDesc}</p></td> 
+          <td><p>{editedMovie.movieRuntime}</p></td> 
+          <td><p>{editedMovie.productionHouse}</p></td> 
           <td><input type="date" value={formatDate(editedMovie.startDate) || formatDate(movie.startDate)} onChange={e => handleInputChange(e, 'startDate')} /></td>
           <td><input type="date" value={formatDate(editedMovie.endDate) || formatDate(movie.endDate)} onChange={e => handleInputChange(e, 'endDate')} /></td>      
           <td>

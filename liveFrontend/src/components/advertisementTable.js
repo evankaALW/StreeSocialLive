@@ -98,7 +98,7 @@ export const AdvertisementTable = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Ad Video Link</th>
+            <th>Advertisement Name</th>
             <th>Total Option Number</th>
             <th>Actions</th>
           </tr>
@@ -126,7 +126,7 @@ export const AdvertisementTable = () => {
           <input type="text" name="id" value={editedData.id || ''} readOnly />
           <br />
           <label>Ad Video Link: </label>
-          <input type="text" name="adVideoLink" value={editedData.adVideoLink || ''} onChange={handleInputChange} />
+          <input type="text" name="advertisementName" value={editedData.advertisementName || ''} readOnly />
           <br />
           <label>Total Option Number: </label>
           <input type="number" name="totalOptionNumber" value={editedData.totalOptionNumber || ''} onChange={handleInputChange} />

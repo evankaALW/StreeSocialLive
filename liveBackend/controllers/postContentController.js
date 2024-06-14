@@ -10,15 +10,13 @@ const postContentDetails = {
         const displayToggle = 0;
         const isDeleted = false;
 
-
-        var { adVideoLink, adVideoLinkSize, questionType, imageURL, questionTypeID, videoType, isQuestionExists, questionDescription, questionTableID, option, videoURL, 
+        var { adVideoLink, advertisementName, adVideoLinkSize, questionType, imageURL, questionTypeID, videoType, isQuestionExists, questionDescription, questionTableID, option, videoURL, 
             padx1, padx2, padx3, padx4, padx5, pady1, pady2, pady3, pady4, pady5, text1, x1, x2, x3, x4, x5, y1, y2, y3, y4, y5, 
             colours, duration, adStartTime,  optionOne, optionTwo, optionThree,
             optionFour, optionFive, correctOption, brandIDForm, isSample, sampleID, movieName, movieURLPartOne, movieURLPartTwo,movieURLPartOneSize,movieURLPartTwoSize
           } = req.body;
  
           if(videoType == "Advertisement"){
-            
           switch (option) {
             case 2:
               console.log("2",option)
@@ -59,14 +57,11 @@ const postContentDetails = {
               break;
           }
 
-          console.log(option, "option",padx3);
           const selectQuery = `SELECT * FROM brandTable WHERE id='${brandIDForm}'`;
-
           const brandIDResult = await connection.query(selectQuery);
           if(brandIDResult[0].length>0)
             {
               brandID = brandIDResult[0][0].id;
-              console.log(questionTableID,isQuestionExists)
             }
             if(isQuestionExists)
             {
@@ -86,14 +81,11 @@ const postContentDetails = {
                 {
                   questionID = questionResult;//insert statement returns new id after success
                 }
-
             }
           
-          if(brandID && questionID) {
-            console.log("BrandID fetched");
-                
-               const insertAdQuery = `INSERT INTO advertisementTable (adVideoLink, adFileSize, totalOptionNumber, questionTableID, userResponseToggle, displayToggle, brandID, duration, adStartTime, isSample, isDeleted, createdAt, updatedAt )
-               VALUES ('${adVideoLink}', ${adVideoLinkSize}, ${option}, ${questionID}, ${userResponseToggle}, ${displayToggle}, ${brandID}, ${duration}, ${adStartTime}, ${isSample}, ${isDeleted}, CONVERT_TZ(NOW(), '+00:00', '+05:30'),CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
+          if(brandID && questionID) {                
+               const insertAdQuery = `INSERT INTO advertisementTable (adVideoLink, advertisementName, adFileSize, totalOptionNumber, questionTableID, userResponseToggle, displayToggle, brandID, duration, adStartTime, isSample, isDeleted, createdAt, updatedAt )
+               VALUES ('${adVideoLink}', '${advertisementName}', ${adVideoLinkSize}, ${option}, ${questionID}, ${userResponseToggle}, ${displayToggle}, ${brandID}, ${duration}, ${adStartTime}, ${isSample}, ${isDeleted}, CONVERT_TZ(NOW(), '+00:00', '+05:30'),CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
 
                const resultAD = await connection.query(insertAdQuery);
                if(resultAD){

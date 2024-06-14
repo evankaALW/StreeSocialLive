@@ -9,6 +9,7 @@ const postSchedulerDataController = {
             var screenId;
             schedulerData.video_links = JSON.stringify(schedulerData.video_links);
             schedulerData.sizes_of_video = JSON.stringify(schedulerData.sizes_of_video);
+            schedulerData.video_names = JSON.stringify(schedulerData.video_names);
             console.log(schedulerData);//id, theatreID, screenID, startDate, slotIndex, videoLinks, movieID, advertisementIDList, isDeleted, createdAt, updatedAt
             
             const selectScreen = `SELECT id FROM screenTable where theatreID=${schedulerData.theatre_id} and screenNo=${schedulerData.screen_id}`;
@@ -19,10 +20,10 @@ const postSchedulerDataController = {
               screenId=selectResult[0][0].id;
               
             }
-            const query = `INSERT INTO schedulerTable( theatreID, screenID, premiereDate, premiereTime, slotIndex, videoLinks, videoLinksSize,
+            const query = `INSERT INTO schedulerTable( theatreID, screenID, premiereDate, premiereTime, slotIndex, videoLinks, videoLinksSize, videoLinksAndName,
                 movieID, advertisementIDList, isDeleted, createdAt, updatedAt) VALUES 
                 (${schedulerData.theatre_id},${screenId},'${schedulerData.premiereDate}','${schedulerData.premiereTime}',${schedulerData.slot_index},'${schedulerData.video_links}',
-                '${schedulerData.sizes_of_video}',${schedulerData.movie_id}, '${schedulerData.advertisementIDList}',false,CONVERT_TZ(NOW(), '+00:00', '+05:30'),CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
+                '${schedulerData.sizes_of_video}', '${schedulerData.video_names}',${schedulerData.movie_id}, '${schedulerData.advertisementIDList}',false,CONVERT_TZ(NOW(), '+00:00', '+05:30'),CONVERT_TZ(NOW(), '+00:00', '+05:30'))`;
                 
             const results = await connection.query(query);
         
