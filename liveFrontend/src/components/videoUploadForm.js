@@ -160,12 +160,12 @@ function UploadForm() {
   const [videoType,setVideoType] = useState('');//variable that stores 2 values ('Advertisement','Movie') if the video type is an advertisement or a movie
   const [selectedDate, setSelectedDate] = useState(new Date());
   
-
+//NOT USED
    const [isBrandExisting, setBrandExisting] = useState(false);
    const handleCheckboxChange = () => {
      setBrandExisting(!isBrandExisting);
    };
-
+//NOT USED
   const handleQuestionTypeIDChange = (e) => {
     const selectedQuestionTypeID = e.target.value;
     setFormData({
@@ -173,14 +173,13 @@ function UploadForm() {
       questionTypeID: selectedQuestionTypeID,
     });
   };
-
+//NOT USED
   const handleVideoTypeChange = (videoType) => {
     setVideoType(videoType);
     setFormData({ ...formData, 'videoType': videoType });
   }
-
+//NOT USED
   useEffect(() => {
-
     if(formData.questionType.trim() === ''){
         setShowAlert(true);
         showAlertMessage = "Please enter a valid Question type";
@@ -190,7 +189,6 @@ function UploadForm() {
 
       return () => clearTimeout(timeoutId);
     }
-
     else if(isNaN(formData.questionTypeID) || formData.questionTypeID < 1){
         setShowAlert(true);
         showAlertMessage = "Please enter a valid Question Type ID (a positive number)";
@@ -202,7 +200,7 @@ function UploadForm() {
     }
   },[buttonClick===true]);
 
-
+//used for most fields when there is a change in value
   const handleChange = (e) => {
     // setOption(parseInt(e.target.value));
     const { name, value } = e.target;
@@ -216,11 +214,11 @@ function UploadForm() {
     console.log(isQuestionExisting,formData)
   };
   
-
+  //handles the change in value for the css  
   const handleInputChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
   };
-
+ //handles change when user uploads ad video
   const handleVideoChange = async (e) => {
     const file = e.target.files[0];
     console.log("file path chatgpt", file);
@@ -253,13 +251,7 @@ function UploadForm() {
     console.log(fileName);
     console.log("handleVideoChange", formData);
   };
-
-
-
-  const handleVideoSizeChange = (fileSize,fileName) => {
-    setFormData({ ...formData, 'adVideoLink': fileName,'adVideoLinkSize': fileSize});
-  }
-
+//handles change when user uploads movie part 1 video
   const handlePartOneURLChange = async (e) => {
     const file = e.target.files[0];
     const myArray = ( e.target.value).split("\\");
@@ -279,7 +271,7 @@ function UploadForm() {
     console.log("part 1one",myArray[2]);
     console.log(formData)
   }
-
+//handles change when user uploads movie part 2 video
   const handlePartTwoURLChange = async (e) => {
     const file = e.target.files[0];
     const myArray = ( e.target.value).split("\\");
@@ -299,13 +291,13 @@ function UploadForm() {
     console.log(myArray[2]);
     console.log(formData)
   }
-  
+  //handles change when user uploads ad image
   const handleImageChange = (e) => {
     const myArray = ( e.target.value).split("\\");
     console.log("image",myArray[2]);
     setFormData({ ...formData, 'imageURL' :  myArray[2]});
   }
-
+//handling when the user submits form button 'Submit'
   const handleSubmit = async (e) => {
     console.log('hello')
     e.preventDefault(); 
@@ -392,7 +384,7 @@ function UploadForm() {
       console.error('Error:', error);
     }
   };
-
+//css text fields that increases/decreases depending on option number selected
   const renderFormFields = () => {
     const fields = [];
     const optionData = {
@@ -463,7 +455,7 @@ function UploadForm() {
         { name: "color", placeholder: "Color" }
       ]
     };
-
+//performs a for loop for displaying the css fields depending on the optio number
     const optionFields = optionData[option];
     if (!optionFields) return null; // Add null check here
 
@@ -482,25 +474,6 @@ function UploadForm() {
     });
     return fields;
   };
-
-  const calculateFileSize = async (fileUrl) => {
-    try {//live link eg. http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4
-      console.log("calculateFileSize",fileUrl)
-      const response = await fetch(`${fileUrl}`, { method: 'HEAD' });
-      const contentLength = response.headers.get('Content-Length');
-      console.log("file size reposne",response);
-      if (contentLength) {
-        return parseInt(contentLength);
-      } else {
-        throw new Error('Content-Length header not found in response.');
-      }
-    } catch (error) {
-      console.error('Error calculating file size:', error);
-      return null;
-    }
-  };
-   
-
 
   return (
     <form className="video-form" onSubmit={handleSubmit}>
