@@ -5,12 +5,12 @@ import config from '../config';
 const apiUrl = `${config.apiBaseUrl}`;
 
 function UploadForm() {
-  const [isQuestionExisting, setQuestionExisting] = useState(false);
-  const [questionDetails, setQuestionDetails] = useState([]);
-  const [brandDetails,setBrandDetails] = useState([]);
-  const [movieDetails,setMovieDetails] = useState([]);
-  const [numOptions, setNumOptions] = useState(2);
-  const [option, setOption] = useState(numOptions);
+  const [isQuestionExisting, setQuestionExisting] = useState(false);//checkbox value if the ad question is existing or not
+  const [questionDetails, setQuestionDetails] = useState([]);//text field for entering new ad question
+  const [brandDetails,setBrandDetails] = useState([]);//dropdown containing existing brands
+  const [movieDetails,setMovieDetails] = useState([]);//dropdown containing existing movies
+  const [numOptions, setNumOptions] = useState(2);//choose number of options for the ad
+  const [option, setOption] = useState(numOptions);//selected option number
   //form data 
   const [formData, setFormData] = useState({
     adVideoLink: '',
@@ -24,11 +24,11 @@ function UploadForm() {
     dateAndTime:'',
     questionType: '',
     videoType:'',
-    isQuestionExists:isQuestionExisting,
+    isQuestionExists:isQuestionExisting,//by default value of checkbox is false
     questionDescription:'',
     questionTableID:'',
     questionTypeID: '',
-    option: 2,//default 2
+    option: 2,//default 2 options
     padx1:'', 
     padx2:'',
     padx3:'',  
@@ -70,7 +70,7 @@ function UploadForm() {
     movieName:'',
     sampleID:'',
   });
-  //Handle Value if the Advertisement is for a Sample or not
+  //Checkbox : Handle Value if the Advertisement is for a Sample or not
   const handleIsSampleChange = (e) => {
     const isSampleValue = e.target.value;
     setFormData(prevState => ({
@@ -78,7 +78,7 @@ function UploadForm() {
       isSample: isSampleValue,
     }));
   };
-  //Save the Sample Details if the Ad is a Sample Ad
+  //NOT IMPLEMENTED NOW : Save the SampleID if the Ad is a Sample Ad ; data will be from external API from Black Cherie's end
   const handleSampleDetailsChange = (e) => {
     const sampleDetails = e.target.value;
     setFormData({
@@ -94,7 +94,6 @@ function UploadForm() {
       isQuestionExists: newValue,
     }));
   };
-
   useEffect(() => { // console.log of the checkbox output once the isQuestionExists value changes
     console.log("formData.isQuestionExists changed:", formData.isQuestionExists, formData);
   }, [formData.isQuestionExists]);
@@ -137,7 +136,7 @@ function UploadForm() {
         });
       },[]);
 
- 
+ //handles number of options, and resets the option values if the user changes the option number
   const handleNumOptionsChange = (e) => {
     const selectedNumOptions = parseInt(e.target.value, 10);
     setNumOptions(selectedNumOptions);
@@ -154,11 +153,11 @@ function UploadForm() {
       correctOption: '',
     }));
   };
-
+//variable to show alert message - error message
   const [showAlert, setShowAlert] = useState(false);
   var showAlertMessage = "";
   var buttonClick = false;
-  const [videoType,setVideoType] = useState('');
+  const [videoType,setVideoType] = useState('');//variable that stores 2 values ('Advertisement','Movie') if the video type is an advertisement or a movie
   const [selectedDate, setSelectedDate] = useState(new Date());
   
 
